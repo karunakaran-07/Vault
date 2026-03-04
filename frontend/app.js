@@ -2,7 +2,7 @@
    Document Vault — Shared Client Utilities
    ============================================================ */
 
-const API = 'docvault.up.railway.app/api';
+const API = 'https://docvault.up.railway.app/api';
 
 // ── Token helpers ────────────────────────────────────────────
 const Auth = {
