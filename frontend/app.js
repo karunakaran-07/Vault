@@ -2,7 +2,7 @@
    Document Vault — Shared Client Utilities
    ============================================================ */
 
-const API = 'http://localhost:5000/api';
+const API = 'https://vault-production-9807.up.railway.app/';
 
 // ── Token helpers ────────────────────────────────────────────
 const Auth = {
