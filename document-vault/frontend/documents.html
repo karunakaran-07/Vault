@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Documents — DocVault</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    .page-header { margin-bottom: 2rem; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 2.2rem; }
+    .page-header p  { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .search-box {
+      flex: 1; min-width: 200px;
+      position: relative;
+    }
+    .search-box input {
+      padding-left: 2.5rem;
+    }
+    .search-box svg {
+      position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); pointer-events: none;
+    }
+    .filter-tabs { display: flex; gap: 0.4rem; }
+    .filter-tab {
+      padding: 0.4rem 0.9rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .filter-tab:hover  { color: var(--text); border-color: var(--border-light); }
+    .filter-tab.active { color: var(--gold); border-color: rgba(201,168,76,0.4); background: var(--gold-dim); }
+
+    /* ── Grid view ── */
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .doc-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .doc-card:hover { border-color: var(--border-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .doc-card-icon {
+      font-size: 2.5rem; margin-bottom: 0.75rem;
+      display: block;
+    }
+    .doc-card-name { font-size: 0.82rem; font-weight: 500; margin-bottom: 0.3rem; word-break: break-word; line-height: 1.4; }
+    .doc-card-meta { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .doc-card-actions { display: flex; gap: 0.5rem; }
+
+    /* ── List view ── */
+    .doc-list { display: none; }
+    .doc-list.show { display: block; }
+    .doc-grid-wrap.list .doc-grid { display: none; }
+    .doc-grid-wrap.list .doc-list { display: block; }
+
+    .list-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.85rem 1.25rem;
+      margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 1rem;
+      transition: all var(--transition);
+    }
+    .list-item:hover { border-color: var(--border-light); }
+    .list-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .list-info { flex: 1; min-width: 0; }
+    .list-name { font-size: 0.82rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .list-meta { font-size: 0.65rem; color: var(--text-muted); }
+    .list-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+    /* ── Empty ── */
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+    .empty-state h3 { font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--text); }
+
+    /* ── View toggle ── */
+    .view-toggle { display: flex; gap: 0.3rem; }
+    .view-btn {
+      width: 34px; height: 34px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-muted);
+      transition: all var(--transition);
+    }
+    .view-btn:hover  { color: var(--text); border-color: var(--border-light); }
+    .view-btn.active { color: var(--gold); border-color: rgba(201,168,76,0.4); background: var(--gold-dim); }
+
+    @media (max-width: 600px) {
+      .filter-tabs { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="vault-nav" id="main-nav"></nav>
+
+  <div class="page-wrap">
+    <div class="page-header fade-up">
+      <div>
+        <h1>My Documents</h1>
+        <p id="doc-count-label">Loading…</p>
+      </div>
+      <a href="upload.html" class="btn btn-primary btn-sm">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Upload New
+      </a>
+    </div>
+
+    <div class="toolbar fade-up-2">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="form-control" placeholder="Search documents…" id="search-input" oninput="filterDocs()"/>
+      </div>
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="filter-tab active" data-type="all"   onclick="setFilter('all',   this)">All</button>
+        <button class="filter-tab"        data-type="pdf"   onclick="setFilter('pdf',   this)">PDF</button>
+        <button class="filter-tab"        data-type="docx"  onclick="setFilter('docx',  this)">DOCX</button>
+        <button class="filter-tab"        data-type="image" onclick="setFilter('image', this)">Images</button>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-grid" onclick="setView('grid')" title="Grid view">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="view-btn" id="btn-list" onclick="setView('list')" title="List view">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="doc-alert" class="alert"></div>
+
+    <div id="doc-grid-wrap" class="doc-grid-wrap fade-up-3">
+      <div class="empty-state">
+        <div class="spinner"></div>
+        <p class="mt-2">Loading documents…</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    injectNav('documents');
+    requireAuth();
+
+    const API_BASE = 'http://localhost:5000/api';
+    let allDocs    = [];
+    let curFilter  = 'all';
+    let curView    = 'grid';
+
+    function fileIcon(mime) {
+      if (!mime) return '📄';
+      if (mime === 'application/pdf') return '📕';
+      if (mime.includes('word')) return '📘';
+      if (mime.startsWith('image/')) return '🖼️';
+      return '📄';
+    }
+
+    function matchesFilter(doc) {
+      if (curFilter === 'all')   return true;
+      if (curFilter === 'pdf')   return doc.file_type === 'application/pdf';
+      if (curFilter === 'docx')  return doc.file_type && doc.file_type.includes('word');
+      if (curFilter === 'image') return doc.file_type && doc.file_type.startsWith('image/');
+      return true;
+    }
+
+    function getVisible() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      return allDocs.filter(d => matchesFilter(d) && d.file_name.toLowerCase().includes(q));
+    }
+
+    function setFilter(type, el) {
+      curFilter = type;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      renderDocs();
+    }
+
+    function filterDocs() { renderDocs(); }
+
+    function setView(v) {
+      curView = v;
+      document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+      document.getElementById('btn-list').classList.toggle('active', v === 'list');
+      const wrap = document.getElementById('doc-grid-wrap');
+      wrap.classList.toggle('list', v === 'list');
+    }
+
+    function renderDocs() {
+      const wrap    = document.getElementById('doc-grid-wrap');
+      const visible = getVisible();
+
+      document.getElementById('doc-count-label').textContent =
+        `${visible.length} document${visible.length !== 1 ? 's' : ''} in your vault`;
+
+      if (visible.length === 0) {
+        wrap.innerHTML = `
+          <div class="empty-state">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <h3 style="margin-top:0.75rem">No documents found</h3>
+            <p>${allDocs.length === 0 ? 'Upload your first file to get started.' : 'Try a different search or filter.'}</p>
+            ${allDocs.length === 0 ? '<a href="upload.html" class="btn btn-primary mt-2">Upload Now</a>' : ''}
+          </div>`;
+        return;
+      }
+
+      const gridCards = visible.map(doc => `
+        <div class="doc-card">
+          <span class="doc-card-icon">${fileIcon(doc.file_type)}</span>
+          <div class="doc-card-name" title="${doc.file_name}">${doc.file_name}</div>
+          <div class="doc-card-meta">${typeBadge(doc.file_type)} · ${fmtSize(doc.file_size)} · ${fmtDate(doc.upload_date)}</div>
+          <div class="doc-card-actions">
+            <button class="btn btn-outline btn-sm" onclick="downloadDoc(${doc.id}, '${doc.file_name.replace(/'/g,"\\'")}')">↓ Download</button>
+            <button class="btn btn-danger btn-sm"  onclick="deleteDoc(${doc.id}, this)">✕</button>
+          </div>
+        </div>`).join('');
+
+      const listItems = visible.map(doc => `
+        <div class="list-item">
+          <div class="list-icon">${fileIcon(doc.file_type)}</div>
+          <div class="list-info">
+            <div class="list-name" title="${doc.file_name}">${doc.file_name}</div>
+            <div class="list-meta">${fmtSize(doc.file_size)} · ${fmtDate(doc.upload_date)}</div>
+          </div>
+          <div>${typeBadge(doc.file_type)}</div>
+          <div class="list-actions">
+            <button class="btn btn-outline btn-sm" onclick="downloadDoc(${doc.id}, '${doc.file_name.replace(/'/g,"\\'")}')">Download</button>
+            <button class="btn btn-danger btn-sm"  onclick="deleteDoc(${doc.id}, this)">Delete</button>
+          </div>
+        </div>`).join('');
+
+      wrap.innerHTML = `
+        <div class="doc-grid">${gridCards}</div>
+        <div class="doc-list ${curView === 'list' ? 'show' : ''}">${listItems}</div>`;
+      wrap.classList.toggle('list', curView === 'list');
+    }
+
+    async function loadDocuments() {
+      try {
+        const data = await apiFetch('/documents');
+        allDocs = data.documents || [];
+        renderDocs();
+      } catch (err) {
+        document.getElementById('doc-grid-wrap').innerHTML =
+          `<div class="empty-state"><p style="color:var(--danger)">Error: ${err.message}</p></div>`;
+      }
+    }
+
+    async function downloadDoc(id, name) {
+      const token = Auth.getToken();
+      const res   = await fetch(`${API_BASE}/documents/download/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) { showAlert('doc-alert', 'Download failed.', 'danger'); return; }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = name;
+      a.click(); URL.revokeObjectURL(url);
+    }
+
+    async function deleteDoc(id, btn) {
+      if (!confirm('Permanently delete this document?')) return;
+      btn.disabled = true;
+      try {
+        await apiFetch(`/documents/${id}`, { method: 'DELETE' });
+        showAlert('doc-alert', 'Document deleted.', 'success');
+        allDocs = allDocs.filter(d => d.id !== id);
+        renderDocs();
+      } catch (err) {
+        showAlert('doc-alert', 'Delete failed: ' + err.message, 'danger');
+        btn.disabled = false;
+      }
+    }
+
+    loadDocuments();
+  </script>
+</body>
+</html>

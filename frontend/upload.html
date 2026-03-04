@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Document — DocVault</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .page-wrap { max-width: 640px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 2.2rem; margin-bottom: 0.3rem; }
+    .page-header p  { font-size: 0.78rem; color: var(--text-muted); }
+
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 3.5rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+      background: var(--surface);
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--gold); background: var(--gold-dim); }
+    .drop-zone.has-file { border-color: var(--gold); border-style: solid; background: rgba(201,168,76,0.04); }
+    .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .drop-icon {
+      width: 56px; height: 56px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem; color: var(--gold);
+      transition: transform var(--transition);
+    }
+    .drop-zone:hover .drop-icon { transform: translateY(-3px); }
+    .drop-zone h3 { font-size: 1.3rem; margin-bottom: 0.4rem; }
+    .drop-zone p  { font-size: 0.75rem; color: var(--text-muted); }
+
+    .drop-zone-selected { display: none; flex-direction: column; align-items: center; gap: 0.5rem; }
+    .drop-zone-selected.show { display: flex; }
+    .drop-zone-default.hide { display: none; }
+
+    .selected-icon { font-size: 3.5rem; line-height: 1; }
+    .selected-filename {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 400;
+      color: var(--text); word-break: break-all;
+      max-width: 100%; text-align: center;
+    }
+    .selected-meta { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 0.2rem; }
+    .selected-size { font-size: 0.72rem; color: var(--text-muted); }
+    .change-file-btn {
+      font-size: 0.65rem; color: var(--gold);
+      background: none; border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 20px; padding: 0.2rem 0.75rem;
+      cursor: pointer; letter-spacing: 0.08em;
+      text-transform: uppercase; transition: all var(--transition);
+      position: relative; z-index: 10;
+    }
+    .change-file-btn:hover { background: var(--gold-dim); }
+
+    /* ── Custom name input ── */
+    .custom-name-wrap {
+      display: none;
+      margin-top: 1.25rem;
+    }
+    .custom-name-wrap.show { display: block; }
+
+    .custom-name-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.45rem;
+      display: block;
+    }
+
+    .custom-name-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+    .custom-name-row:focus-within {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+    }
+    .custom-name-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      padding: 0.7rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .custom-name-input::placeholder { color: var(--text-dim); }
+    .custom-name-ext {
+      padding: 0.7rem 1rem;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .custom-name-hint {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-top: 0.4rem;
+    }
+
+    .progress-wrap { margin-top: 1.25rem; display: none; }
+    .progress-wrap.show { display: block; }
+    .progress-bar-track { height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+    .progress-bar-fill  { height: 100%; background: var(--gold); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
+    .progress-label { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.4rem; }
+
+    .allowed-types { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    .type-pill {
+      font-size: 0.62rem; padding: 0.25rem 0.6rem;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 20px; color: var(--text-muted); letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body>
+  <nav class="vault-nav" id="main-nav"></nav>
+
+  <div class="page-wrap">
+    <div class="page-header fade-up">
+      <h1>Upload Document</h1>
+      <p>Add a new file to your secure vault</p>
+    </div>
+
+    <div class="card fade-up-2">
+      <div id="upload-alert" class="alert"></div>
+
+      <!-- Drop Zone -->
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp" onchange="handleFileSelect(this)"/>
+
+        <!-- Default state -->
+        <div class="drop-zone-default" id="drop-default">
+          <div class="drop-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <h3>Drop your file here</h3>
+          <p>or click to browse from your device</p>
+          <div class="allowed-types" style="justify-content:center; margin-top:1rem">
+            <span class="type-pill">PDF</span>
+            <span class="type-pill">DOCX</span>
+            <span class="type-pill">JPG</span>
+            <span class="type-pill">PNG</span>
+            <span class="type-pill">GIF</span>
+            <span class="type-pill">WEBP</span>
+            <span class="type-pill">Max 5 MB</span>
+          </div>
+        </div>
+
+        <!-- Selected file state -->
+        <div class="drop-zone-selected" id="drop-selected">
+          <div class="selected-icon" id="selected-icon">📄</div>
+          <div class="selected-filename" id="selected-filename">filename.pdf</div>
+          <div class="selected-meta">
+            <span class="selected-size" id="selected-size">0 KB</span>
+            <span id="selected-type-badge"></span>
+          </div>
+          <button class="change-file-btn" onclick="triggerFilePicker(event)">↺ Change File</button>
+        </div>
+      </div>
+
+      <!-- Custom file name input (shown after file selected) -->
+      <div class="custom-name-wrap" id="custom-name-wrap">
+        <label class="custom-name-label" for="custom-name">
+          📝 Save as (custom name)
+        </label>
+        <div class="custom-name-row">
+          <input
+            type="text"
+            id="custom-name"
+            class="custom-name-input"
+            placeholder="Enter a custom file name"
+            autocomplete="off"
+          />
+          <div class="custom-name-ext" id="custom-name-ext">.pdf</div>
+        </div>
+        <div class="custom-name-hint">Leave blank to use the original file name</div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-label" id="progress-label">Uploading…</div>
+      </div>
+
+      <!-- Upload button -->
+      <button class="btn btn-primary w-full mt-3" id="upload-btn" onclick="handleUpload()" disabled>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <span id="upload-btn-text">Select a File First</span>
+        <span id="upload-spinner" class="spinner" style="display:none"></span>
+      </button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    injectNav('upload');
+    requireAuth();
+
+    let selectedFile = null;
+
+    const zone = document.getElementById('drop-zone');
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) setFile(file);
+    });
+
+    function triggerFilePicker(e) {
+      e.stopPropagation();
+      document.getElementById('file-input').click();
+    }
+
+    function handleFileSelect(input) {
+      if (input.files[0]) setFile(input.files[0]);
+    }
+
+    function getFileIcon(mime) {
+      if (mime === 'application/pdf') return '📕';
+      if (mime && mime.includes('word')) return '📘';
+      if (mime && mime.startsWith('image/')) return '🖼️';
+      return '📄';
+    }
+
+    function getExtension(filename) {
+      const parts = filename.split('.');
+      return parts.length > 1 ? '.' + parts.pop().toLowerCase() : '';
+    }
+
+    function getNameWithoutExt(filename) {
+      const ext = getExtension(filename);
+      return ext ? filename.slice(0, -ext.length) : filename;
+    }
+
+    function setFile(file) {
+      const MAX     = 5 * 1024 * 1024;
+      const ALLOWED = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp'
+      ];
+
+      if (!ALLOWED.includes(file.type)) {
+        showAlert('upload-alert', 'File type not allowed. Upload PDF, DOCX, or image files only.', 'danger');
+        return;
+      }
+      if (file.size > MAX) {
+        showAlert('upload-alert', `File too large (${fmtSize(file.size)}). Maximum is 5 MB.`, 'danger');
+        return;
+      }
+
+      selectedFile = file;
+      const ext = getExtension(file.name);
+
+      // Update drop zone
+      document.getElementById('drop-default').classList.add('hide');
+      document.getElementById('drop-selected').classList.add('show');
+      zone.classList.add('has-file');
+
+      document.getElementById('selected-icon').textContent     = getFileIcon(file.type);
+      document.getElementById('selected-filename').textContent = file.name;
+      document.getElementById('selected-size').textContent     = fmtSize(file.size);
+      document.getElementById('selected-type-badge').innerHTML = typeBadge(file.type);
+
+      // Show custom name input pre-filled with original name (without extension)
+      document.getElementById('custom-name-wrap').classList.add('show');
+      document.getElementById('custom-name').value       = getNameWithoutExt(file.name);
+      document.getElementById('custom-name-ext').textContent = ext || '';
+
+      // Enable upload button
+      document.getElementById('upload-btn').disabled = false;
+      document.getElementById('upload-btn-text').textContent = `Upload to Vault`;
+    }
+
+    function clearFile() {
+      selectedFile = null;
+      document.getElementById('file-input').value        = '';
+      document.getElementById('drop-default').classList.remove('hide');
+      document.getElementById('drop-selected').classList.remove('show');
+      zone.classList.remove('has-file');
+      document.getElementById('custom-name-wrap').classList.remove('show');
+      document.getElementById('custom-name').value       = '';
+      document.getElementById('upload-btn').disabled     = true;
+      document.getElementById('upload-btn-text').textContent = 'Select a File First';
+    }
+
+    async function handleUpload() {
+      if (!selectedFile) return;
+
+      // Build final filename: custom name (if given) + original extension
+      const customName = document.getElementById('custom-name').value.trim();
+      const ext        = getExtension(selectedFile.name);
+      const baseName   = customName || getNameWithoutExt(selectedFile.name);
+      const finalName  = baseName + ext;
+
+      const btn       = document.getElementById('upload-btn');
+      const btnText   = document.getElementById('upload-btn-text');
+      const spinner   = document.getElementById('upload-spinner');
+      const progWrap  = document.getElementById('progress-wrap');
+      const progFill  = document.getElementById('progress-fill');
+      const progLabel = document.getElementById('progress-label');
+
+      btn.disabled = true;
+      btnText.textContent = `Uploading…`;
+      spinner.style.display = 'inline-block';
+      progWrap.classList.add('show');
+      progLabel.textContent = `Uploading "${finalName}"…`;
+
+      let prog = 0;
+      const ticker = setInterval(() => {
+        prog = Math.min(prog + Math.random() * 15, 85);
+        progFill.style.width = prog + '%';
+      }, 200);
+
+      try {
+        // Create a renamed File object so the server receives the custom name
+        const renamedFile = new File([selectedFile], finalName, { type: selectedFile.type });
+
+        const formData = new FormData();
+        formData.append('document', renamedFile);
+
+        const token = Auth.getToken();
+        const res   = await fetch('http://localhost:5000/api/documents/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Upload failed.');
+
+        clearInterval(ticker);
+        progFill.style.width = '100%';
+        progLabel.textContent = `✓ "${finalName}" uploaded!`;
+        showAlert('upload-alert', `✓ "${finalName}" has been added to your vault.`, 'success');
+        clearFile();
+        setTimeout(() => { progWrap.classList.remove('show'); progFill.style.width = '0%'; }, 3000);
+      } catch (err) {
+        clearInterval(ticker);
+        showAlert('upload-alert', err.message, 'danger');
+        progWrap.classList.remove('show');
+        btn.disabled = false;
+        btnText.textContent = 'Upload to Vault';
+      } finally {
+        spinner.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
