@@ -2,19 +2,15 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: 'smtp-relay.brevo.com',
   port: 587,
   secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
 });
 
-// Verify connection on startup
 transporter.verify((error) => {
   if (error) {
     console.error('❌ Email service error:', error.message);
@@ -53,7 +49,6 @@ async function sendOtpEmail(toEmail, userName, otp) {
       </div>
     `,
   };
-
   await transporter.sendMail(mailOptions);
 }
 
