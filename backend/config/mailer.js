@@ -1,30 +1,12 @@
-const nodemailer = require('nodemailer');
 require('dotenv').config();
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-transporter.verify((error) => {
-  if (error) {
-    console.error('❌ Email service error:', error.message);
-  } else {
-    console.log('✅ Email service ready');
-  }
-});
+const https = require('https');
 
 async function sendOtpEmail(toEmail, userName, otp) {
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || `DocVault <${process.env.EMAIL_USER}>`,
-    to: toEmail,
-    subject: `Your DocVault Password Reset OTP`,
-    html: `
+  const data = JSON.stringify({
+    sender: { name: 'DocVault', email: process.env.EMAIL_FROM_ADDRESS || 'securedocvault@gmail.com' },
+    to: [{ email: toEmail, name: userName }],
+    subject: 'Your DocVault Password Reset OTP',
+    htmlContent: `
       <div style="max-width:520px; margin:40px auto; background:#13151a; border:1px solid #2a2d38; border-radius:12px; overflow:hidden; font-family:sans-serif;">
         <div style="padding:28px 36px; text-align:center; border-bottom:1px solid #2a2d38;">
           <div style="font-size:22px; font-weight:600; color:#c9a84c; letter-spacing:0.1em;">🔒 DOCVAULT</div>
@@ -48,8 +30,40 @@ async function sendOtpEmail(toEmail, userName, otp) {
         </div>
       </div>
     `,
-  };
-  await transporter.sendMail(mailOptions);
+  });
+
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'api.brevo.com',
+      path: '/v3/smtp/email',
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'Content-Length': Buffer.byteLength(data),
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          console.log('✅ Email sent successfully');
+          resolve();
+        } else {
+          console.error('❌ Email API error:', body);
+          reject(new Error('Failed to send email: ' + body));
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+  });
 }
 
+console.log('✅ Email service ready (Brevo API)');
 module.exports = { sendOtpEmail };
