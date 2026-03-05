@@ -92,7 +92,10 @@ function injectNav(activePage) {
       </svg>
       <div>DOCVAULT <span>SECURE STORAGE</span></div>
     </div>
-    <div class="nav-links">
+    <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="nav-links">
       ${Auth.isLoggedIn() ? `
         <a href="documents.html" data-page="documents" ${activePage==='documents'?'class="active"':''}>My Docs</a>
         <a href="upload.html"    data-page="upload"    ${activePage==='upload'?'class="active"':''}>Upload</a>
@@ -105,3 +108,21 @@ function injectNav(activePage) {
       `}
     </div>`;
 }
+
+function toggleNav() {
+  const toggle = document.getElementById('nav-toggle');
+  const links  = document.getElementById('nav-links');
+  if (toggle) toggle.classList.toggle('open');
+  if (links)  links.classList.toggle('open');
+}
+
+// Close nav when clicking outside
+document.addEventListener('click', (e) => {
+  const nav    = document.getElementById('main-nav');
+  const toggle = document.getElementById('nav-toggle');
+  const links  = document.getElementById('nav-links');
+  if (nav && !nav.contains(e.target)) {
+    if (toggle) toggle.classList.remove('open');
+    if (links)  links.classList.remove('open');
+  }
+});

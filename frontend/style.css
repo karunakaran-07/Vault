@@ -246,3 +246,92 @@ a:hover { color: var(--gold-light); }
 .fade-up { animation: fadeUp 0.4s ease both; }
 .fade-up-2 { animation: fadeUp 0.4s 0.1s ease both; }
 .fade-up-3 { animation: fadeUp 0.4s 0.2s ease both; }
+
+/* ── Mobile Hamburger Nav ──────────────────────────────────── */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 0.4rem;
+  background: none;
+  border: none;
+  z-index: 200;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+.nav-toggle.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+@media (max-width: 768px) {
+  .nav-toggle { display: flex; }
+
+  .nav-links {
+    display: none;
+    position: fixed;
+    top: 64px;
+    left: 0; right: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0.5rem 0;
+    z-index: 150;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a {
+    padding: 0.85rem 1.5rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-links a:last-child { border-bottom: none; }
+  .btn-nav {
+    margin: 0.5rem 1rem !important;
+    border-radius: var(--radius) !important;
+    text-align: center;
+    justify-content: center;
+  }
+  .nav-links span.text-muted {
+    padding: 0.6rem 1.5rem !important;
+    font-size: 0.72rem;
+    border-bottom: 1px solid var(--border);
+    display: block;
+  }
+}
+
+/* ── FAB Upload Button Fix ─────────────────────────────────── */
+.fab-upload {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  background: var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.4);
+  transition: all var(--transition);
+  z-index: 50;
+  text-decoration: none;
+  border: none;
+}
+.fab-upload:hover {
+  background: var(--gold-light);
+  color: var(--bg) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(201,168,76,0.5);
+}
+.fab-upload svg { pointer-events: none; }
