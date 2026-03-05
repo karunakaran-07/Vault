@@ -1,7 +1,7 @@
 {
   "name": "document-vault-backend",
   "version": "1.0.0",
-  "description": "Secure Document Vault – Express.js backend (sql.js)",
+  "description": "Secure Document Vault",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,8 +14,7 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^8.0.1",
-    "sql.js": "^1.10.3"
+    "pg": "^8.11.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

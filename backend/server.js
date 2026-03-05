@@ -1,8 +1,8 @@
 require('dotenv').config();
-const express    = require('express');
-const cors       = require('cors');
-const path       = require('path');
-const { getDb }  = require('./config/db');
+const express   = require('express');
+const cors      = require('cors');
+const path      = require('path');
+const { getDb } = require('./config/db');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -12,7 +12,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Init DB first, then start server
 getDb().then(() => {
   const authRoutes = require('./routes/auth');
   const docRoutes  = require('./routes/documents');
