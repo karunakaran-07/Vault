@@ -1,13 +1,23 @@
 {
-  "name": "document-vault",
+  "name": "docvault",
   "version": "1.0.0",
   "description": "Secure Document Vault",
-  "main": "backend/server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "install": "cd backend && npm install"
+    "build": "echo done"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "22.x"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.41.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^6.9.7",
+    "pg": "^8.11.3"
   }
 }
