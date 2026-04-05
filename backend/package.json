@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Secure Document Vault",
   "scripts": {
-    "build": "npm install"
+    "build": "echo done"
   },
   "engines": {
     "node": "20.x"
