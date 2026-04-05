@@ -1,0 +1,128 @@
+/* ============================================================
+   Document Vault — Shared Client Utilities
+   ============================================================ */
+
+const API = 'http://localhost:5000/api';
+
+// ── Token helpers ────────────────────────────────────────────
+const Auth = {
+  getToken:  ()      => localStorage.getItem('dv_token'),
+  getUser:   ()      => JSON.parse(localStorage.getItem('dv_user') || 'null'),
+  setSession:(token, user) => {
+    localStorage.setItem('dv_token', token);
+    localStorage.setItem('dv_user', JSON.stringify(user));
+  },
+  clear: () => {
+    localStorage.removeItem('dv_token');
+    localStorage.removeItem('dv_user');
+  },
+  isLoggedIn: () => !!localStorage.getItem('dv_token'),
+};
+
+// ── Authenticated fetch ──────────────────────────────────────
+async function apiFetch(endpoint, options = {}) {
+  const token = Auth.getToken();
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (options.body instanceof FormData) delete headers['Content-Type'];
+
+  const res = await fetch(API + endpoint, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+  return data;
+}
+
+// ── Show alert ───────────────────────────────────────────────
+function showAlert(id, message, type = 'danger') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = `alert alert-${type} show`;
+  el.textContent = message;
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+// ── Format file size ─────────────────────────────────────────
+function fmtSize(bytes) {
+  if (!bytes) return '—';
+  if (bytes < 1024)        return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+// ── Format date ──────────────────────────────────────────────
+function fmtDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// ── File type badge ──────────────────────────────────────────
+function typeBadge(mime) {
+  if (!mime) return `<span class="badge-type badge-other">file</span>`;
+  if (mime === 'application/pdf') return `<span class="badge-type badge-pdf">PDF</span>`;
+  if (mime.includes('word'))      return `<span class="badge-type badge-docx">DOCX</span>`;
+  if (mime.startsWith('image/'))  return `<span class="badge-type badge-image">Image</span>`;
+  return `<span class="badge-type badge-other">File</span>`;
+}
+
+// ── Nav active state ─────────────────────────────────────────
+function setActiveNav(page) {
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.toggle('active', a.dataset.page === page);
+  });
+}
+
+// ── Guard: redirect if not logged in ─────────────────────────
+function requireAuth() {
+  if (!Auth.isLoggedIn()) { window.location.href = 'login.html'; }
+}
+
+// ── Guard: redirect if already logged in ─────────────────────
+function redirectIfAuth() {
+  if (Auth.isLoggedIn()) { window.location.href = 'dashboard.html'; }
+}
+
+// ── Update nav based on auth state ───────────────────────────
+function renderNav() {
+  const user = Auth.getUser();
+  const loggedIn = Auth.isLoggedIn();
+  const guestLinks = document.getElementById('nav-guest');
+  const authLinks  = document.getElementById('nav-auth');
+  const navUser    = document.getElementById('nav-user');
+
+  if (guestLinks) guestLinks.style.display = loggedIn ? 'none' : 'flex';
+  if (authLinks)  authLinks.style.display  = loggedIn ? 'flex' : 'none';
+  if (navUser && user) navUser.textContent  = user.name.split(' ')[0];
+}
+
+function logout() {
+  Auth.clear();
+  window.location.href = 'index.html';
+}
+
+// ── Shared nav HTML ──────────────────────────────────────────
+function injectNav(activePage) {
+  const nav = document.getElementById('main-nav');
+  if (!nav) return;
+  const user = Auth.getUser();
+  nav.innerHTML = `
+    <div class="brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="11" width="18" height="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <div>DOCVAULT <span>SECURE STORAGE</span></div>
+    </div>
+    <div class="nav-links">
+      ${Auth.isLoggedIn() ? `
+        <a href="dashboard.html" data-page="dashboard" ${activePage==='dashboard'?'class="active"':''}>Dashboard</a>
+        <a href="documents.html" data-page="documents" ${activePage==='documents'?'class="active"':''}>My Docs</a>
+        <a href="upload.html"    data-page="upload"    ${activePage==='upload'?'class="active"':''}>Upload</a>
+        <span class="text-muted text-xs" style="padding:0 0.5rem">${user?.name?.split(' ')[0] || ''}</span>
+        <a href="#" class="btn-nav btn" onclick="logout()">Logout</a>
+      ` : `
+        <a href="index.html"    data-page="home"     ${activePage==='home'?'class="active"':''}>Home</a>
+        <a href="login.html"    data-page="login"    ${activePage==='login'?'class="active"':''}>Login</a>
+        <a href="register.html" class="btn-nav btn">Register</a>
+      `}
+    </div>`;
+}

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — DocVault</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .auth-wrap {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+      position: relative;
+    }
+    .auth-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 30% 40%, rgba(201,168,76,0.05) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 70% 60%, rgba(74,127,165,0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .auth-box { width: 100%; max-width: 440px; position: relative; }
+    .auth-header { text-align: center; margin-bottom: 2rem; }
+    .auth-icon {
+      width: 56px; height: 56px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.2rem;
+      color: var(--gold);
+    }
+    .auth-header h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+    .auth-header p  { font-size: 0.78rem; color: var(--text-muted); }
+
+    .password-strength {
+      height: 3px;
+      background: var(--surface-2);
+      border-radius: 2px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    .password-strength-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      width: 0%;
+    }
+
+    .strength-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+
+    .divider { border-color: var(--border); margin: 1.5rem 0; }
+  </style>
+</head>
+<body>
+  <nav class="vault-nav" id="main-nav"></nav>
+
+  <div class="auth-wrap">
+    <div class="auth-box fade-up">
+      <div class="auth-header">
+        <div class="auth-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <line x1="19" y1="8" x2="19" y2="14"/>
+            <line x1="22" y1="11" x2="16" y2="11"/>
+          </svg>
+        </div>
+        <h1>Create Account</h1>
+        <p>Open your secure document vault</p>
+      </div>
+
+      <div class="card">
+        <div id="reg-alert" class="alert"></div>
+
+        <form id="register-form" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" class="form-control" placeholder="Jane Doe" required autocomplete="name"/>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="jane@example.com" required autocomplete="email"/>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Minimum 6 characters" required autocomplete="new-password" oninput="checkStrength(this.value)"/>
+            <div class="password-strength">
+              <div class="password-strength-bar" id="strength-bar"></div>
+            </div>
+            <div class="strength-label" id="strength-label">Enter a password</div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirm">Confirm Password</label>
+            <input type="password" id="confirm" class="form-control" placeholder="Repeat your password" required autocomplete="new-password"/>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full mt-2" id="reg-btn">
+            <span id="reg-btn-text">Create Account</span>
+            <span id="reg-spinner" class="spinner" style="display:none"></span>
+          </button>
+        </form>
+
+        <hr class="divider"/>
+        <p class="text-center text-sm text-muted">
+          Already have an account? <a href="login.html">Sign in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    injectNav('register');
+    redirectIfAuth();
+
+    function checkStrength(val) {
+      const bar   = document.getElementById('strength-bar');
+      const label = document.getElementById('strength-label');
+      let score = 0;
+      if (val.length >= 6)  score++;
+      if (val.length >= 10) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      const levels = [
+        { w: '0%',  color: 'transparent',  text: 'Enter a password' },
+        { w: '25%', color: '#e74c3c',       text: 'Weak' },
+        { w: '50%', color: '#e67e22',       text: 'Fair' },
+        { w: '75%', color: '#f1c40f',       text: 'Good' },
+        { w: '90%', color: '#2ecc71',       text: 'Strong' },
+        { w: '100%',color: '#27ae60',       text: 'Very strong' },
+      ];
+      const lvl = levels[Math.min(score, 5)];
+      bar.style.width = lvl.w;
+      bar.style.background = lvl.color;
+      label.textContent = lvl.text;
+      label.style.color = lvl.color === 'transparent' ? 'var(--text-muted)' : lvl.color;
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name     = document.getElementById('name').value.trim();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm').value;
+
+      if (password !== confirm) {
+        showAlert('reg-alert', 'Passwords do not match.', 'danger');
+        return;
+      }
+
+      const btn     = document.getElementById('reg-btn');
+      const btnText = document.getElementById('reg-btn-text');
+      const spinner = document.getElementById('reg-spinner');
+
+      btn.disabled = true;
+      btnText.textContent = 'Creating…';
+      spinner.style.display = 'inline-block';
+
+      try {
+        await apiFetch('/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({ name, email, password }),
+        });
+        showAlert('reg-alert', '✓ Account created! Redirecting to login…', 'success');
+        setTimeout(() => window.location.href = 'login.html', 1800);
+      } catch (err) {
+        showAlert('reg-alert', err.message, 'danger');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Create Account';
+        spinner.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

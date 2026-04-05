@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/auth/:path*", "destination": "/api/auth/[...path]" },
+    { "source": "/api/documents/:path*", "destination": "/api/documents/[...path]" },
+    { "source": "/api/documents", "destination": "/api/documents/[...path]" },
+    { "source": "/api/health", "destination": "/api/health" }
+  ]
+}

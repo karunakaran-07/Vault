@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DocVault — Secure Document Storage</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ── Hero ── */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* grid background */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    /* radial glow */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(201,168,76,0.3);
+      background: rgba(201,168,76,0.06);
+      padding: 0.35rem 1rem;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      line-height: 1.05;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero p {
+      max-width: 520px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.8;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Features ── */
+    .features {
+      padding: 6rem 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+
+    .features h2 { font-size: 2.5rem; color: var(--text); margin-bottom: 3rem; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .feature-card:hover { border-color: var(--border-light); transform: translateY(-3px); }
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.2rem;
+      color: var(--gold);
+    }
+
+    .feature-card h3 { font-size: 1.25rem; margin-bottom: 0.6rem; }
+    .feature-card p  { font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+      /* Fix hero button hover text visibility */
+    .hero-cta .btn-primary:hover { color: #0b0c0f !important; }
+    .hero-cta .btn-outline:hover { color: var(--gold) !important; }
+    .btn:hover { text-decoration: none; }
+    a.btn { text-decoration: none; }
+    a.btn:hover { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <nav class="vault-nav" id="main-nav"></nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow fade-up">🔒 Military-grade document security</div>
+    <h1 class="fade-up-2">Your Private<br/><em>Document Vault</em></h1>
+    <p class="fade-up-3">
+      Store, manage, and access your most important files from anywhere — protected by JWT authentication, encrypted passwords, and strict access controls.
+    </p>
+    <div class="hero-cta fade-up-3">
+      <a href="register.html" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Create Free Account
+      </a>
+      <a href="login.html" class="btn btn-outline">
+        Sign In
+      </a>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="section-label">Why DocVault</div>
+    <h2>Built for <em>Privacy & Control</em></h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>Secure by Design</h3>
+        <p>JWT tokens, bcrypt password hashing, and per-user file isolation ensure only you can access your documents.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <h3>Easy Uploads</h3>
+        <p>Drag &amp; drop PDF, DOCX, and image files up to 5 MB each. Type validation prevents malicious uploads.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <h3>Organised Dashboard</h3>
+        <p>Browse all your files with upload dates, sizes, and types at a glance. Download or delete with one click.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Always Available</h3>
+        <p>REST API backend with MySQL persistence means your vault is ready when you need it, from any device.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 DocVault — Secure Document Storage &nbsp;|&nbsp; All rights reserved
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    injectNav('home');
+    // If already logged in, redirect to My Documents
+    if (Auth.isLoggedIn()) {
+      window.location.href = 'documents.html';
+    }
+  </script>
+</body>
+</html>
