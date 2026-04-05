@@ -1,12 +1,5 @@
-/* ============================================================
-   Document Vault — Shared Client Utilities
-   ============================================================ */
+const API = '/api';
 
-const API = const API = window.location.hostname === 'localhost'
-  ? 'http://localhost:3000/api'
-  : '/api';
-
-// ── Token helpers ────────────────────────────────────────────
 const Auth = {
   getToken:  ()      => localStorage.getItem('dv_token'),
   getUser:   ()      => JSON.parse(localStorage.getItem('dv_user') || 'null'),
@@ -21,20 +14,17 @@ const Auth = {
   isLoggedIn: () => !!localStorage.getItem('dv_token'),
 };
 
-// ── Authenticated fetch ──────────────────────────────────────
 async function apiFetch(endpoint, options = {}) {
   const token = Auth.getToken();
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   if (options.body instanceof FormData) delete headers['Content-Type'];
-
   const res = await fetch(API + endpoint, { ...options, headers });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
   return data;
 }
 
-// ── Show alert ───────────────────────────────────────────────
 function showAlert(id, message, type = 'danger') {
   const el = document.getElementById(id);
   if (!el) return;
@@ -43,7 +33,6 @@ function showAlert(id, message, type = 'danger') {
   setTimeout(() => el.classList.remove('show'), 5000);
 }
 
-// ── Format file size ─────────────────────────────────────────
 function fmtSize(bytes) {
   if (!bytes) return '—';
   if (bytes < 1024)        return bytes + ' B';
@@ -51,13 +40,11 @@ function fmtSize(bytes) {
   return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
 }
 
-// ── Format date ──────────────────────────────────────────────
 function fmtDate(str) {
   if (!str) return '—';
   return new Date(str).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-// ── File type badge ──────────────────────────────────────────
 function typeBadge(mime) {
   if (!mime) return `<span class="badge-type badge-other">file</span>`;
   if (mime === 'application/pdf') return `<span class="badge-type badge-pdf">PDF</span>`;
@@ -66,12 +53,10 @@ function typeBadge(mime) {
   return `<span class="badge-type badge-other">File</span>`;
 }
 
-// ── Guard: redirect if not logged in ─────────────────────────
 function requireAuth() {
   if (!Auth.isLoggedIn()) { window.location.href = 'login.html'; }
 }
 
-// ── Guard: redirect if already logged in ─────────────────────
 function redirectIfAuth() {
   if (Auth.isLoggedIn()) { window.location.href = 'documents.html'; }
 }
@@ -81,7 +66,6 @@ function logout() {
   window.location.href = 'index.html';
 }
 
-// ── Shared nav HTML ──────────────────────────────────────────
 function injectNav(activePage) {
   const nav = document.getElementById('main-nav');
   if (!nav) return;
@@ -118,7 +102,6 @@ function toggleNav() {
   if (links)  links.classList.toggle('open');
 }
 
-// Close nav when clicking outside
 document.addEventListener('click', (e) => {
   const nav    = document.getElementById('main-nav');
   const toggle = document.getElementById('nav-toggle');
