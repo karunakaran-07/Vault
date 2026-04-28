@@ -10,7 +10,6 @@
     .page-header { margin-bottom: 2rem; }
     .page-header h1 { font-size: 2.2rem; margin-bottom: 0.3rem; }
     .page-header p  { font-size: 0.78rem; color: var(--text-muted); }
-
     .drop-zone {
       border: 2px dashed var(--border);
       border-radius: var(--radius-lg);
@@ -36,11 +35,9 @@
     .drop-zone:hover .drop-icon { transform: translateY(-3px); }
     .drop-zone h3 { font-size: 1.3rem; margin-bottom: 0.4rem; }
     .drop-zone p  { font-size: 0.75rem; color: var(--text-muted); }
-
     .drop-zone-selected { display: none; flex-direction: column; align-items: center; gap: 0.5rem; }
     .drop-zone-selected.show { display: flex; }
     .drop-zone-default.hide { display: none; }
-
     .selected-icon { font-size: 3.5rem; line-height: 1; }
     .selected-filename {
       font-family: 'Cormorant Garamond', serif;
@@ -59,69 +56,37 @@
       position: relative; z-index: 10;
     }
     .change-file-btn:hover { background: var(--gold-dim); }
-
-    /* ── Custom name input ── */
-    .custom-name-wrap {
-      display: none;
-      margin-top: 1.25rem;
-    }
+    .custom-name-wrap { display: none; margin-top: 1.25rem; }
     .custom-name-wrap.show { display: block; }
-
     .custom-name-label {
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 0.45rem;
-      display: block;
+      font-size: 0.68rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 0.45rem; display: block;
     }
-
     .custom-name-row {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
+      display: flex; align-items: center; gap: 0;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
       transition: border-color var(--transition);
     }
-    .custom-name-row:focus-within {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
-    }
+    .custom-name-row:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
     .custom-name-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text);
-      padding: 0.7rem 1rem;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.85rem;
-      outline: none;
+      flex: 1; background: transparent; border: none;
+      color: var(--text); padding: 0.7rem 1rem;
+      font-family: 'DM Mono', monospace; font-size: 0.85rem; outline: none;
     }
     .custom-name-input::placeholder { color: var(--text-dim); }
     .custom-name-ext {
-      padding: 0.7rem 1rem;
-      background: var(--surface);
-      border-left: 1px solid var(--border);
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      letter-spacing: 0.06em;
-      white-space: nowrap;
+      padding: 0.7rem 1rem; background: var(--surface);
+      border-left: 1px solid var(--border); font-size: 0.75rem;
+      color: var(--text-muted); letter-spacing: 0.06em; white-space: nowrap;
     }
-    .custom-name-hint {
-      font-size: 0.65rem;
-      color: var(--text-dim);
-      margin-top: 0.4rem;
-    }
-
+    .custom-name-hint { font-size: 0.65rem; color: var(--text-dim); margin-top: 0.4rem; }
     .progress-wrap { margin-top: 1.25rem; display: none; }
     .progress-wrap.show { display: block; }
     .progress-bar-track { height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
     .progress-bar-fill  { height: 100%; background: var(--gold); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
     .progress-label { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.4rem; }
-
     .allowed-types { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
     .type-pill {
       font-size: 0.62rem; padding: 0.25rem 0.6rem;
@@ -132,21 +97,15 @@
 </head>
 <body>
   <nav class="vault-nav" id="main-nav"></nav>
-
   <div class="page-wrap">
     <div class="page-header fade-up">
       <h1>Upload Document</h1>
       <p>Add a new file to your secure vault</p>
     </div>
-
     <div class="card fade-up-2">
       <div id="upload-alert" class="alert"></div>
-
-      <!-- Drop Zone -->
       <div class="drop-zone" id="drop-zone">
         <input type="file" id="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp" onchange="handleFileSelect(this)"/>
-
-        <!-- Default state -->
         <div class="drop-zone-default" id="drop-default">
           <div class="drop-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -167,8 +126,6 @@
             <span class="type-pill">Max 5 MB</span>
           </div>
         </div>
-
-        <!-- Selected file state -->
         <div class="drop-zone-selected" id="drop-selected">
           <div class="selected-icon" id="selected-icon">📄</div>
           <div class="selected-filename" id="selected-filename">filename.pdf</div>
@@ -179,34 +136,20 @@
           <button class="change-file-btn" onclick="triggerFilePicker(event)">↺ Change File</button>
         </div>
       </div>
-
-      <!-- Custom file name input (shown after file selected) -->
       <div class="custom-name-wrap" id="custom-name-wrap">
-        <label class="custom-name-label" for="custom-name">
-          📝 Save as (custom name)
-        </label>
+        <label class="custom-name-label" for="custom-name">📝 Save as (custom name)</label>
         <div class="custom-name-row">
-          <input
-            type="text"
-            id="custom-name"
-            class="custom-name-input"
-            placeholder="Enter a custom file name"
-            autocomplete="off"
-          />
+          <input type="text" id="custom-name" class="custom-name-input" placeholder="Enter a custom file name" autocomplete="off"/>
           <div class="custom-name-ext" id="custom-name-ext">.pdf</div>
         </div>
         <div class="custom-name-hint">Leave blank to use the original file name</div>
       </div>
-
-      <!-- Progress bar -->
       <div class="progress-wrap" id="progress-wrap">
         <div class="progress-bar-track">
           <div class="progress-bar-fill" id="progress-fill"></div>
         </div>
         <div class="progress-label" id="progress-label">Uploading…</div>
       </div>
-
-      <!-- Upload button -->
       <button class="btn btn-primary w-full mt-3" id="upload-btn" onclick="handleUpload()" disabled>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -218,7 +161,6 @@
       </button>
     </div>
   </div>
-
   <script src="app.js"></script>
   <script>
     injectNav('upload');
@@ -270,7 +212,6 @@
         'application/msword',
         'image/jpeg', 'image/png', 'image/gif', 'image/webp'
       ];
-
       if (!ALLOWED.includes(file.type)) {
         showAlert('upload-alert', 'File type not allowed. Upload PDF, DOCX, or image files only.', 'danger');
         return;
@@ -279,46 +220,37 @@
         showAlert('upload-alert', `File too large (${fmtSize(file.size)}). Maximum is 5 MB.`, 'danger');
         return;
       }
-
       selectedFile = file;
       const ext = getExtension(file.name);
-
-      // Update drop zone
       document.getElementById('drop-default').classList.add('hide');
       document.getElementById('drop-selected').classList.add('show');
       zone.classList.add('has-file');
-
       document.getElementById('selected-icon').textContent     = getFileIcon(file.type);
       document.getElementById('selected-filename').textContent = file.name;
       document.getElementById('selected-size').textContent     = fmtSize(file.size);
       document.getElementById('selected-type-badge').innerHTML = typeBadge(file.type);
-
-      // Show custom name input pre-filled with original name (without extension)
       document.getElementById('custom-name-wrap').classList.add('show');
-      document.getElementById('custom-name').value       = getNameWithoutExt(file.name);
-      document.getElementById('custom-name-ext').textContent = ext || '';
-
-      // Enable upload button
-      document.getElementById('upload-btn').disabled = false;
-      document.getElementById('upload-btn-text').textContent = `Upload to Vault`;
+      document.getElementById('custom-name').value            = getNameWithoutExt(file.name);
+      document.getElementById('custom-name-ext').textContent  = ext || '';
+      document.getElementById('upload-btn').disabled          = false;
+      document.getElementById('upload-btn-text').textContent  = 'Upload to Vault';
     }
 
     function clearFile() {
       selectedFile = null;
-      document.getElementById('file-input').value        = '';
+      document.getElementById('file-input').value            = '';
       document.getElementById('drop-default').classList.remove('hide');
       document.getElementById('drop-selected').classList.remove('show');
       zone.classList.remove('has-file');
       document.getElementById('custom-name-wrap').classList.remove('show');
-      document.getElementById('custom-name').value       = '';
-      document.getElementById('upload-btn').disabled     = true;
+      document.getElementById('custom-name').value           = '';
+      document.getElementById('upload-btn').disabled         = true;
       document.getElementById('upload-btn-text').textContent = 'Select a File First';
     }
 
     async function handleUpload() {
       if (!selectedFile) return;
 
-      // Build final filename: custom name (if given) + original extension
       const customName = document.getElementById('custom-name').value.trim();
       const ext        = getExtension(selectedFile.name);
       const baseName   = customName || getNameWithoutExt(selectedFile.name);
@@ -332,7 +264,7 @@
       const progLabel = document.getElementById('progress-label');
 
       btn.disabled = true;
-      btnText.textContent = `Uploading…`;
+      btnText.textContent = 'Uploading…';
       spinner.style.display = 'inline-block';
       progWrap.classList.add('show');
       progLabel.textContent = `Uploading "${finalName}"…`;
@@ -344,9 +276,7 @@
       }, 200);
 
       try {
-        // Create a renamed File object so the server receives the custom name
         const renamedFile = new File([selectedFile], finalName, { type: selectedFile.type });
-
         const formData = new FormData();
         formData.append('document', renamedFile);
 
@@ -357,6 +287,15 @@
           body: formData,
         });
         const data = await res.json();
+
+        // Auto logout if token expired
+        if (res.status === 401) {
+          Auth.clear();
+          alert('Your session has expired. Please log in again.');
+          window.location.href = 'login.html';
+          return;
+        }
+
         if (!res.ok) throw new Error(data.message || 'Upload failed.');
 
         clearInterval(ticker);
