@@ -19,8 +19,18 @@ async function apiFetch(endpoint, options = {}) {
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   if (options.body instanceof FormData) delete headers['Content-Type'];
+
   const res = await fetch(API + endpoint, { ...options, headers });
   const data = await res.json().catch(() => ({}));
+
+  // Auto logout if token expired or invalid
+  if (res.status === 401) {
+    Auth.clear();
+    alert('Your session has expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
   if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
   return data;
 }
