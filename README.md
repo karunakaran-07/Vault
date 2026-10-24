@@ -101,3 +101,4 @@ npm install --global windows-build-tools
 
 **Port already in use**
 Change `PORT=5001` in `.env` and update `API` in `frontend/app.js` to match.
+Doc Vault Security Has been Increased 
